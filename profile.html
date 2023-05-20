@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Data</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    footer{
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #fff;
+    }
+
+    .nav-icn{
+      width: 40px;
+      height: 40px;
+      margin: 10px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section:target {
+      display: block;
+    }
+
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100vw; height: 100vh; overflow: hidden; }
+    body { display: flex; justify-content: space-evenly; align-items: center; }
+    #swiper { height: 70vh; aspect-ratio: 2/3; perspective: 1000px; perspective-origin: center 50%; transform-style: preserve-3d; position: relative; }
+    .card { width: 100%; height: 100%; position: absolute; border-radius: 20px; overflow: hidden; transform: translateZ(calc(-30px * var(--i))) translateY(calc(-20px * var(--i))) rotate(calc(-4deg * var(--i))); filter: drop-shadow(2px 2px 20px rgba(0, 0, 0, 0.5)); cursor: pointer; user-select: none; transition: transform 0.5s; }
+    .card img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+    #like, #dislike { font-size: 16vh; border-radius: 50%; padding: 20px; position: relative; z-index: 1; animation: animation1 1s ease-in-out both; /* don't run animation at the beginning */ animation-play-state: paused; }
+    #like.trigger, #dislike.trigger { animation-name: animation2; }
+    #like { color: red; background-color: rgba(255, 255, 255, 0.5); }
+    #dislike { color: #ccc; background-color: rgba(0, 0, 0, 0.5); }
+    @keyframes animation1 { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+    @keyframes animation2 { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+
+    /* Add your desired styling here */
+  </style>
+</head>
+<body>
+  <div class="section" id="main">
+    <p style="font-size: 30px; position: absolute; top: 10px;"><b>Hum</b>ble</p>
+
+  <div id="swiper"></div>
+  </div>
+
+
+  <div class="section" id="profile">
+  <h1>Profile</h1>
+
+  <h2>Personal Info</h2>
+  <div id="personal-info"></div>
+
+  <h2>Education</h2>
+  <div id="education-info"></div>
+
+  <h2>Career</h2>
+  <div id="career-info"></div>
+</div>
+<div class="section" id="history">
+  <h1>History</h1>
+  <div id="history-info"></div>
+</div>
+<footer>
+  <a href="#main"><img class="nav-icn" src="card.svg" alt=""></a>
+  <a href="#history"><img class="nav-icn" src="history.svg" alt=""></a>
+  <a href="#profile"><img class="nav-icn" src="profile.svg" alt=""></a>
+</footer>
+  <script>
+    // Retrieve the form data from local storage
+    var personalInfo = JSON.parse(localStorage.getItem("personalInfo"));
+    var educationInfo = JSON.parse(localStorage.getItem("educationInfo"));
+    var careerInfo = JSON.parse(localStorage.getItem("careerInfo"));
+
+    // Display the personal info
+    var personalInfoDiv = document.getElementById("personal-info");
+    personalInfoDiv.innerHTML = `
+      <p>Name: ${personalInfo.name}</p>
+      <p>Email: ${personalInfo.email}</p>
+      <p>Phone Number: ${personalInfo.phoneNumber}</p>
+    `;
+
+    // Display the education info
+    var educationInfoDiv = document.getElementById("education-info");
+    educationInfoDiv.innerHTML = `
+      <p>Highest Qualification: ${educationInfo.qualification}</p>
+      <p>Current GPA: ${educationInfo.gpa}</p>
+      <p>Class 10th Board: ${educationInfo.board10th}</p>
+      <p>Marks obtained in 10th standard: ${educationInfo.marks10th}</p>
+      <p>Class 12th/Diploma Board: ${educationInfo.board12th}</p>
+      <p>Marks obtained in 12th/Diploma: ${educationInfo.marks12th}</p>
+    `;
+
+    // Display the career info
+    var careerInfoDiv = document.getElementById("career-info");
+    careerInfoDiv.innerHTML = `
+      <p>Skills: ${careerInfo.skills}</p>
+      <p>Achievements: ${careerInfo.achievements}</p>
+      <p>Projects: ${careerInfo.projects}</p>
+      <p>Experience: ${careerInfo.experience}</p>
+    `;
+  </script>
+
+<script>
+  class Card {
+    constructor({ imageUrl, onDismiss, onLike, onDislike }) {
+      this.imageUrl = imageUrl;
+      this.onDismiss = onDismiss;
+      this.onLike = onLike;
+      this.onDislike = onDislike;
+      this.#init();
+    }
+
+    // private properties
+    #startPoint;
+    #offsetX;
+    #offsetY;
+
+    #isTouchDevice = () => (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
+
+    #init = () => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const img = document.createElement('img');
+      img.src = this.imageUrl;
+      card.appendChild(img);
+      this.element = card;
+      this.#isTouchDevice() ? this.#listenToTouchEvents() : this.#listenToMouseEvents();
+    }
+
+    #listenToTouchEvents = () => {
+      this.element.addEventListener('touchstart', (e) => {
+        const touch = e.changedTouches[0];
+        if (!touch) return;
+        const { clientX, clientY } = touch;
+        this.#startPoint = { x: clientX, y: clientY };
+        document.addEventListener('touchmove', this.#handleTouchMove);
+        this.element.style.transition = 'transform 0s';
+      });
+
+      document.addEventListener('touchend', this.#handleTouchEnd);
+      document.addEventListener('cancel', this.#handleTouchEnd);
+    }
+
+    #listenToMouseEvents = () => {
+      this.element.addEventListener('mousedown', (e) => {
+        const { clientX, clientY } = e;
+        this.#startPoint = { x: clientX, y: clientY };
+        document.addEventListener('mousemove', this.#handleMouseMove);
+        this.element.style.transition = 'transform 0s';
+      });
+
+      document.addEventListener('mouseup', this.#handleMoveUp);
+
+      // prevent card from being dragged
+      this.element.addEventListener('dragstart', (e) => {
+        e.preventDefault();
+      });
+    }
+
+    #handleMove = (x, y) => {
+      this.#offsetX = x - this.#startPoint.x;
+      this.#offsetY = y - this.#startPoint.y;
+      const rotate = this.#offsetX * 0.1;
+      this.element.style.transform = `translate(${this.#offsetX}px, ${this.#offsetY}px) rotate(${rotate}deg)`;
+      // dismiss card
+      if (Math.abs(this.#offsetX) > this.element.clientWidth * 0.7) {
+        this.#dismiss(this.#offsetX > 0 ? 1 : -1);
+      }
+    }
+
+    // mouse event handlers
+    #handleMouseMove = (e) => {
+      e.preventDefault();
+      if (!this.#startPoint) return;
+      const { clientX, clientY } = e;
+      this.#handleMove(clientX, clientY);
+    }
+
+    #handleMoveUp = () => {
+      this.#startPoint = null;
+      document.removeEventListener('mousemove', this.#handleMouseMove);
+      this.element.style.transform = '';
+    }
+
+    // touch event handlers
+    #handleTouchMove = (e) => {
+      if (!this.#startPoint) return;
+      const touch = e.changedTouches[0];
+      if (!touch) return;
+      const { clientX, clientY } = touch;
+      this.#handleMove(clientX, clientY);
+    }
+
+    #handleTouchEnd = () => {
+      this.#startPoint = null;
+      document.removeEventListener('touchmove', this.#handleTouchMove);
+      this.element.style.transform = '';
+    }
+
+    #dismiss = (direction) => {
+      this.#startPoint = null;
+      document.removeEventListener('mouseup', this.#handleMoveUp);
+      document.removeEventListener('mousemove', this.#handleMouseMove);
+      document.removeEventListener('touchend', this.#handleTouchEnd);
+      document.removeEventListener('touchmove', this.#handleTouchMove);
+      this.element.style.transition = 'transform 1s';
+      this.element.style.transform = `translate(${direction * window.innerWidth}px, ${this.#offsetY}px) rotate(${90 * direction}deg)`;
+      this.element.classList.add('dismissing');
+      setTimeout(() => this.element.remove(), 1000);
+      typeof this.onDismiss === 'function' && this.onDismiss();
+      typeof this.onLike === 'function' && direction === 1 && this.onLike();
+      typeof this.onDislike === 'function' && direction === -1 && this.onDislike();
+    }
+  }
+
+  // DOM
+  const swiper = document.querySelector('#swiper');
+  const like = document.querySelector('#like');
+  const dislike = document.querySelector('#dislike');
+
+  // constants
+  const urls = [
+    'https://www.zdnet.com/a/img/resize/5a8f28ad16df98d4ca2a4bde2f859bd867f7e17b/2020/04/30/120ce3e8-a4c8-4d15-baaf-75335c8da183/istock-1154834209.jpg?auto=webp&fit=crop&height=900&width=1200',
+    'https://media.istockphoto.com/id/1319657811/photo/exterior-view-of-the-french-headquarters-of-ibm-bois-colombes-france.jpg?s=612x612&w=0&k=20&c=-Nav8ryjF-RdEmGdC2arPttYTfemEy7XNpKfrmYaI_w=',
+    'https://i2-prod.bristolpost.co.uk/incoming/article7425430.ece/ALTERNATES/s1200b/0_HBBRI_050822-amazon-warehouse-bristol.jpg',
+    'https://images.cnbctv18.com/wp-content/uploads/2022/09/Netflix-1019x573.jpg',
+    'https://media.glassdoor.com/lst2x/09/07/03/52/building.jpg'
+  ];
+
+  // variables
+  let cardCount = 0;
+
+  // functions
+  const appendNewCard = () => {
+    const card = new Card({
+      imageUrl: urls[cardCount % 5],
+      onDismiss: appendNewCard,
+      onLike: () => {
+        like.style.animationPlayState = 'running';
+        like.classList.toggle('trigger');
+      },
+      onDislike: () => {
+        dislike.style.animationPlayState = 'running';
+        dislike.classList.toggle('trigger');
+      }
+    });
+    swiper.append(card.element);
+    cardCount++;
+
+    const cards = swiper.querySelectorAll('.card:not(.dismissing)');
+    cards.forEach((card, index) => card.style.setProperty('--i', index));
+  };
+
+  // first 5 cards
+  for (let i = 0; i < 5; i++) {
+    appendNewCard();
+  }
+</script>
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+</html>

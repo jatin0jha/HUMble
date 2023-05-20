@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>reg-page</title>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        .my-img{
+            margin: 50px;
+            animation: rotateImg 5s linear infinite;
+        }
+
+        @keyframes rotateImg{
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(359deg);
+            }
+        }
+
+        /* Overlay Popup Styling */
+        #termsPopup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+        }
+
+        #termsPopup .content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            width: 400px;
+            text-align: center;
+        }
+
+        #termsPopup h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        #termsPopup button {
+            padding: 10px 20px;
+            background-color: #0095ff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Show the Popup */
+        #termsPopup.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div style="margin: 20px; display: flex; flex-direction: column;">
+        <div class="logo" style="font-size: 50px; margin: 0 auto; display: flex;"><div style="color: red;">&#916;</div><div style="margin-left: -20px; color: rgb(0, 149, 255);">&#8711;</div></div>
+        <h3 style="margin-top: -10px; display: flex; margin: 0 auto;"><div style="color: rgb(0, 149, 255);">H</div><div style="color: red;">u</div><div style="color: rgb(201, 201, 96);">m</div><div style="color: rgb(0, 149, 255);">b</div><div style="color: rgb(8, 188, 8);">l</div><div style="color: red;">e</div></h3>
+        <img class="my-img" src="work.png" alt="Works">
+        <p style="color: rgb(206, 206, 206); margin-top: 10%; text-align: center;">Swipe your way to your dream job or internship. Discover exciting opportunities with a single swipe and connect with innovative companies instantly.</p>
+        <div style="margin: 0 auto; background-color: rgb(228, 228, 228); width: max-content; padding: 10px 10px; border-radius: 50px;" class="btn"><a style="text-decoration: none; color: black;" href="#" onclick="showTermsPopup()">Register</a></div>
+</div>
+<footer>
+    <div style="position: absolute; bottom: 0; margin: 0 auto; display: flex; justify-content: center; align-items: center; width: 100%; height: 50px; background-color: rgb(228, 228, 228); color: rgb(0, 149, 255);"><a style="text-decoration: none; color: rgb(0, 149, 255);" href="#">Privacy policies</a></div>
+</footer>
+
+<!-- Overlay Popup -->
+<div id="termsPopup">
+    <div class="content">
+        <h2>Terms and Conditions</h2>
+        <p>Please read and accept the terms and conditions to proceed.</p>
+        <button onclick="acceptTerms()"><a style="text-decoration: none;" href="register.html#contact-info">Accept</a></button>
+    </div>
+</div>
+
+<script>
+    // Show the overlay popup
+    function showTermsPopup() {
+        document.getElementById("termsPopup").classList.add("show");
+    }
+
+    // Accept the terms and close the popup
+    function acceptTerms() {
+        document.getElementById("termsPopup").classList.remove("show");
+        // Add your logic to handle the acceptance of terms here
+    }
+</script>
+</body>
+</html>
+```
